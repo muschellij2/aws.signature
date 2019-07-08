@@ -14,6 +14,8 @@ test_that("read_credentials() works", {
     bob <- read_credentials(file = "credentials")[["Bob"]]
     expect_equal(bob[["AWS_SECRET_ACCESS_KEY"]], "Bob_secret_access_key", label = "final line value read correctly")
     expect_false(identical(alice, bob), label = "Read distinct profiles correctly")
+    expect_false("[" %in% names(alice))
+    expect_false("[" %in% names(bob))
 })
 
 test_that("read_credentials() works even absent EOL character", {
@@ -32,25 +34,25 @@ test_that("read_credentials() fails when file is missing", {
 context("Tests use_credentials()")
 
 test_that("use_credentials() sets environment variables correctly", {
-    
+
     skip_on_cran()
-    
+
     # save environment variables
     e <- Sys.getenv(c("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AWS_DEFAULT_REGION"))
-    
+
     # unset environment variables
     Sys.unsetenv("AWS_ACCESS_KEY_ID")
     Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
     Sys.unsetenv("AWS_SESSION_TOKEN")
     Sys.unsetenv("AWS_DEFAULT_REGION")
-    
+
     # tests
     use_credentials(profile = "default", file = "credentials")
     expect_equal(Sys.getenv("AWS_ACCESS_KEY_ID"), "ACCESS_KEY")
     expect_equal(Sys.getenv("AWS_SECRET_ACCESS_KEY"), "SECRET_KEY")
     expect_equal(Sys.getenv("AWS_SESSION_TOKEN"), "TOKEN")
     expect_equal(Sys.getenv("AWS_DEFAULT_REGION"), "")
-    
+
     # restore environment variables
     do.call("Sys.setenv", as.list(e))
 })
